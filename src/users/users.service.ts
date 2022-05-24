@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UnauthorizedError } from 'src/common/errors/types/UnauthorizedErroir';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+import { Prisma } from '@prisma/client';
 import { UsersRepository } from './repositories/users.repository';
 
 @Injectable()
@@ -29,10 +29,17 @@ export class UsersService {
     }
   }
 
-  async findOne(email: string) {
-    throw new UnauthorizedError('Não autorizado');
-    const user = this.prismaService.findOne(email);
-    return user;
+  async findOne(id: string) {
+    try {
+      const user = await this.prismaService.findOne(id);
+      return user;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new Error('Iae');
+        }
+      }
+    }
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

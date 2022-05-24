@@ -3,23 +3,24 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
-  UnauthorizedException
+  NotFoundException
 } from '@nestjs/common';
 import { catchError, Observable } from 'rxjs';
-import { UnauthorizedError } from '../types/UnauthorizedErroir';
+
+import { NotFoundError } from '../types/NotFoundError';
 
 @Injectable()
-export class UserInterceptor implements NestInterceptor {
+export class NotFoundInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Observable<any> {
     return next.handle().pipe(
       catchError(error => {
-        if (error instanceof UnauthorizedError) {
-          throw new UnauthorizedException(error.message);
+        if (error instanceof NotFoundError) {
+          throw new NotFoundException(error.message);
         }
-        throw error;
+        return error;
       }),
     );
   }

@@ -24,10 +24,6 @@ export class UsersRepository {
       },
     });
 
-    if (!user) {
-      throw new Error();
-    }
-
     return user;
   }
 
