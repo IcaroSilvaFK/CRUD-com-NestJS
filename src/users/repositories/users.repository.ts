@@ -9,16 +9,6 @@ export class UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(newUser: CreateUserDto) {
-    const userExists = await this.prismaService.user.findFirst({
-      where: {
-        email: newUser.email,
-      },
-    });
-
-    if (userExists) {
-      throw new Error();
-    }
-
     const user = await this.prismaService.user.create({
       data: {
         ...newUser,
