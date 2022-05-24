@@ -27,10 +27,10 @@ export class UsersRepository {
     return user;
   }
 
-  async findOne(email: string) {
+  async findOne(id: string) {
     const user = await this.prismaService.user.findUnique({
       where: {
-        email,
+        id,
       },
     });
 
