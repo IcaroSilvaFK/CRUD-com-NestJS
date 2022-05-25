@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { NotFoundError } from '../common/errors/types/NotFoundError';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -10,7 +11,6 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const response = await this.prismaService.create(createUserDto);
-
     return response;
   }
 
@@ -22,7 +22,10 @@ export class UsersService {
 
   async findOne(id: string) {
     const user = await this.prismaService.findOne(id);
-    return user;
+    if(!user){
+      throw new NotFoundError('Usuario não encontrado')
+    }
+    return user
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
