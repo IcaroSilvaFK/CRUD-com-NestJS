@@ -70,12 +70,45 @@ export class PostRepository {
   }
 
   async update({id,post}:{id:string,post:UpdatePostDto}){
+
+
+    const postsExists = await this.prisma.post.findFirst({
+      where:{
+        id
+      }
+    })
+
+    const {email} = await this.prisma.user.findFirst({
+      where:{
+        email: post.authorEmail
+      }
+    })
+
+    if(!postsExists || !email){
+      throw new NotFoundError('Post is not found')
+    }
+
+    delete post.authorEmail;
+
     const response = await this.prisma.post.update({
       where:{
         id
       },
       data:{
-        ...post
+        ...post,
+        author:{
+          connect:{
+            email
+          }
+        }
+      },
+      include:{
+        author:{
+          select:{
+            name:true,
+            email:true,
+          }
+        }
       }
     })
     return response

@@ -37,7 +37,16 @@ export class UsersRepository {
   }
 
   async findAll() {
-    const users = await this.prismaService.user.findMany();
+    const users = await this.prismaService.user.findMany({
+      include:{
+        posts:{
+          select:{
+            title:true,
+            createAt:true
+          }
+        }
+      }
+    });
 
     return users;
   }
@@ -46,6 +55,9 @@ export class UsersRepository {
       where: {
         id,
       },
+      include:{
+        posts:true
+      }
     });
   }
   async update(id: string, user: UpdateUserDto) {
