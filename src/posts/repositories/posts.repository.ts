@@ -1,21 +1,72 @@
+import { Injectable } from '@nestjs/common';
+import { NotFoundError } from 'src/common/errors/types/NotFoundError';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 
+@Injectable()
 export class PostRepository {
   constructor(private readonly prisma:PrismaService){}
 
   async create(post:CreatePostDto){
+    const {authorEmail} = post
+    const {id} = await this.prisma.user.findUnique({
+      where:{
+        email: authorEmail
+      }
+    })
+
+    delete post.authorEmail;
+
+    if(!id){
+      throw new NotFoundError('Author not found')
+    }
+
     const data= await this.prisma.post.create({
       data:{
         ...post,
-        author_id: post.authorEmail
+        author:{
+          connect:{
+            id
+          }
+        }
       }
     })
     return data
   }
   async findALl(){
-    const posts = await this.prisma.post.findMany()
+    const posts = await this.prisma.post.findMany({
+      include:{
+        author:{
+          select:{
+            email:true,
+            name:true,
+            id:true,
+          }
+        }
+      }
+    })
+
+    return posts
+  }
+
+  async findOne({id}:{id:string}){
+    const post = await this.prisma.post.findFirst({
+      where:{
+        id
+      },
+      include:{
+        author:{
+          select:{
+            email:true,
+            id:true,
+            name:true,
+          }
+        }
+      }
+    })
+
+    return post
   }
 
   async update({id,post}:{id:string,post:UpdatePostDto}){
@@ -36,5 +87,16 @@ export class PostRepository {
         id
       }
     })
+  }
+  async getPerUser({email}:{email:string}){
+    const posts = await  this.prisma.post.findMany({
+      where:{
+        author:{
+          email
+        }
+      }
+    })
+
+    return posts
   }
 }

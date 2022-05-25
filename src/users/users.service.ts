@@ -37,4 +37,6 @@ export class UsersService {
     await this.prismaService.delete(id);
     return { message: 'User delete success' };
   }
+
+
 }

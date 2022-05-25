@@ -2,25 +2,49 @@ import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
+
+import { PostRepository } from './repositories/posts.repository';
+
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(private readonly postService:PostRepository){
+
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async create(createPostDto: CreatePostDto) {
+    const post = await this.postService.create(createPostDto)
+
+    return post
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findAll() {
+    const posts = await this.postService.findALl()
+
+    return posts
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async findOne(id:string) {
+    const post  = await this.postService.findOne({id})
+    return post
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async update(id: string,post: UpdatePostDto) {
+    const postUpdate = await this.postService.update({id,post})
+
+    return postUpdate
+  }
+
+  async remove(id: string) {
+
+    await this.postService.delete({id})
+
+    return {
+      message:'Post remove success'
+    }
+  }
+  async getPostPerEmail(email:string){
+    const response = await this.postService.getPerUser({email})
+
+    return response
   }
 }

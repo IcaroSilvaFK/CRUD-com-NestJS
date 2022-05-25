@@ -22,9 +22,16 @@ export class UsersRepository {
       where: {
         id,
       },
+      select:{
+        name:true,
+        posts:{
+          select:{
+            title:true,
+            createAt:true
+          }
+        }
+      }
     });
-
-
 
     return user;
   }
@@ -53,4 +60,5 @@ export class UsersRepository {
 
     return updateUser;
   }
+
 }
